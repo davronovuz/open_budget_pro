@@ -43,8 +43,9 @@ services:
       pg_database:
         condition: service_healthy
     environment:
-      BOT_ROOT: /usr/src/app/bot
-      MODELS_MODULE: ${MODELS_MODULE:-openbudget_models_single_file}
+      BOT_ROOT: /infrastructure/database/models
+      MODELS_MODULE: ${MODELS_MODULE:-models}
+
     logging:
       driver: "json-file"
       options:
