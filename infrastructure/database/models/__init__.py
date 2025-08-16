@@ -1,12 +1,8 @@
-from .base import Base
-from .users import User
-from .projects import Project
-from .votes import Vote
-from .referrals import Referral
-from .transactions import Transaction
-from .withdrawals import Withdrawal
-from .admin_logs import AdminLog
-from .selenium_jobs import SeleniumJob
+from .models import Base,User, Project, Vote,\
+    Referral, Transaction, \
+    Withdrawal, AdminLog, SeleniumJob,Channel,Setting,UserPhone,ExportJob
+
+
 
 __all__ = [
     'Base',
@@ -18,4 +14,9 @@ __all__ = [
     'Withdrawal',
     'AdminLog',
     'SeleniumJob',
+    'Channel',
+    'Setting',
+    'UserPhone',
+    'ExportJob'
+
 ]
