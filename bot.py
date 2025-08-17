@@ -10,6 +10,7 @@ from aiogram.fsm.storage.redis import RedisStorage, DefaultKeyBuilder
 from config import load_config, Config
 from handlers.users import routers_list
 from middlewares.config import ConfigMiddleware
+from middlewares.force_subscribe import ForceSubscribeMiddleware
 
 from services import broadcaster
 
@@ -19,24 +20,15 @@ async def on_startup(bot: Bot, admin_ids: list[int]):
 
 
 def register_global_middlewares(dp: Dispatcher, config: Config, session_pool=None):
-    """
-    Register global middlewares for the given dispatcher.
-    Global middlewares here are the ones that are applied to all the handlers (you specify the type of update)
-
-    :param dp: The dispatcher instance.
-    :type dp: Dispatcher
-    :param config: The configuration object from the loaded configuration.
-    :param session_pool: Optional session pool object for the database using SQLAlchemy.
-    :return: None
-    """
     middleware_types = [
         ConfigMiddleware(config),
-        # DatabaseMiddleware(session_pool),
+        ForceSubscribeMiddleware()
     ]
 
-    for middleware_type in middleware_types:
-        dp.message.outer_middleware(middleware_type)
-        dp.callback_query.outer_middleware(middleware_type)
+    for mw in middleware_types:
+        dp.message.middleware(mw)         # ✅ shu
+        dp.callback_query.middleware(mw)  # ✅ shu
+
 
 
 def setup_logging():
@@ -94,10 +86,10 @@ async def main():
 
     bot = Bot(token=config.tg_bot.token, default=DefaultBotProperties(parse_mode="HTML"))
     dp = Dispatcher(storage=storage)
-
+    register_global_middlewares(dp, config)
     dp.include_routers(*routers_list)
 
-    register_global_middlewares(dp, config)
+
 
     await on_startup(bot, config.tg_bot.admin_ids)
     await dp.start_polling(bot)
