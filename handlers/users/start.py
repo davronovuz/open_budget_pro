@@ -9,7 +9,8 @@ from keyboards.inline.main import get_user_start_inline_keyboard
 
 user_router = Router()
 
-API_BASE = "http://144.91.113.85:8088/api/v1"  # DRF bazaviy URL (plural)
+API_BASE = "http://167.86.71.176/api/v1"
+
 API_USERS = f"{API_BASE}/users/"               # DRF plural endpoint
 
 logger = logging.getLogger("bot.start")
