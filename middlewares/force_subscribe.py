@@ -5,7 +5,7 @@ import aiohttp
 
 API_BASE = "http://167.86.71.176/api/v1"
 
-WHITELIST = {"start", "help", "check"}
+WHITELIST = { "help", "check"}
 
 class ForceSubscribeMiddleware(BaseMiddleware):
     async def __call__(self, handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]], event: Message, data: Dict[str, Any]):
