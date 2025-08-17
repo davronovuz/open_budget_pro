@@ -1,29 +1,19 @@
+version: "3.9"
+
 services:
   bot:
-    image: "bot"
-    stop_signal: SIGINT
     build:
       context: .
-    working_dir: "/usr/src/app/bot"
+      dockerfile: Dockerfile
+    working_dir: /usr/src/app/bot
+    command: python -m bot
+    restart: unless-stopped
+    env_file:
+      - .env
     volumes:
       - .:/usr/src/app/bot
-    # MUHIM: avval migratsiya, keyin bot
-    command: sh -c "alembic upgrade head && python3 -m bot"
-    restart: always
-    env_file:
-      - ".env"
-    depends_on:
-      pg_database:
-        condition: service_healthy
-    environment:
-      BOT_ROOT: /infrastructure/database/models
-      MODELS_MODULE: ${MODELS_MODULE:-models}
-
     logging:
-      driver: "json-file"
+      driver: json-file
       options:
-        max-size: "200k"
+        max-size: "900k"
         max-file: "10"
-
-volumes:
-  pgdata: {}
