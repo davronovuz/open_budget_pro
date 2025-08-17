@@ -2,7 +2,6 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from typing import List, Optional
 
-from infrastructure.database.models.users import WithdrawStatus
 
 
 # ===== USER KEYBOARDS =====
@@ -469,50 +468,6 @@ def get_withdraw_management_keyboard() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def get_withdraw_detail_keyboard(withdraw_id: int, status: str) -> InlineKeyboardMarkup:
-    """💰 Pul yechish so'rovi tafsilotlari uchun interaktiv keyboard"""
-    builder = InlineKeyboardBuilder()
-
-    # Holatiga qarab amallar
-    if status == WithdrawStatus.PENDING.value:
-        builder.row(
-            InlineKeyboardButton(text="✅ Tasdiqlash", callback_data=f"approve_withdraw_{withdraw_id}"),
-            InlineKeyboardButton(text="❌ Rad etish", callback_data=f"reject_withdraw_{withdraw_id}")
-        )
-        builder.row(
-            InlineKeyboardButton(text="⏳ Jarayonga o'tkazish", callback_data=f"process_withdraw_{withdraw_id}"),
-            InlineKeyboardButton(text="📞 Foydalanuvchiga murojaat", callback_data=f"contact_user_{withdraw_id}")
-        )
-
-    elif status == WithdrawStatus.PROCESSING.value:
-        builder.row(
-            InlineKeyboardButton(text="✅ Tugatish", callback_data=f"complete_withdraw_{withdraw_id}"),
-            InlineKeyboardButton(text="⏸ To'xtatish", callback_data=f"pause_withdraw_{withdraw_id}")
-        )
-
-    elif status == WithdrawStatus.APPROVED.value:
-        builder.row(
-            InlineKeyboardButton(text="📋 Chekni ko'rish", callback_data=f"view_receipt_{withdraw_id}"),
-            InlineKeyboardButton(text="🔄 Qayta ishlash", callback_data=f"reprocess_withdraw_{withdraw_id}")
-        )
-
-    # Umumiy tugmalar
-    builder.row(
-        InlineKeyboardButton(text="👤 Foydalanuvchi profili", callback_data=f"user_profile_from_withdraw_{withdraw_id}"),
-        InlineKeyboardButton(text="📊 To'lov tarixi", callback_data=f"payment_history_{withdraw_id}")
-    )
-
-    builder.row(
-        InlineKeyboardButton(text="📝 Izoh qo'shish", callback_data=f"add_withdraw_note_{withdraw_id}"),
-        InlineKeyboardButton(text="🔄 Holatni yangilash", callback_data=f"update_withdraw_status_{withdraw_id}")
-    )
-
-    # Orqaga tugmasi
-    builder.row(
-        InlineKeyboardButton(text="🔙 Orqaga", callback_data="withdraw_management")
-    )
-
-    return builder.as_markup()
 
 
 # ===== ADMIN MANAGEMENT KEYBOARDS =====
