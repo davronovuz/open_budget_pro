@@ -5,37 +5,56 @@ import aiohttp
 
 API_BASE = "http://167.86.71.176/api/v1"
 
-WHITELIST = { "help", "check"}
+WHITELIST = {"help", "check"}  # faqat shu komandalar uchun tekshirmaymiz
+
 
 class ForceSubscribeMiddleware(BaseMiddleware):
-    async def __call__(self, handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]], event: Message, data: Dict[str, Any]):
+    async def __call__(
+        self,
+        handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]],
+        event: Message,
+        data: Dict[str, Any],
+    ):
+        # faqat Message event uchun ishlatamiz
+        if not isinstance(event, Message):
+            return await handler(event, data)
+
+        # Agar komandasi whitelist ichida bo‘lsa → tekshirmaymiz
+        if event.text:
+            cmd = event.text.lstrip("/").split()[0].lower()
+            if cmd in WHITELIST:
+                return await handler(event, data)
 
         user_id = event.from_user.id
         try:
             async with aiohttp.ClientSession() as sess:
-                async with sess.get(f"{API_BASE}/api/subscribe/status/", params={"user_id": user_id}) as r:
+                async with sess.get(
+                    f"{API_BASE}/api/subscribe/status/",
+                    params={"user_id": user_id}
+                ) as r:
                     payload = await r.json()
         except Exception:
-            # Backend down — foydalanuvchini ushlab qolmaymiz
+            # backend ishlamasa — bloklamaymiz
             return await handler(event, data)
 
         fully = bool(payload.get("fully_subscribed", True))
         mode = payload.get("enforcement_mode", "BLOCK")
+
         if fully:
             return await handler(event, data)
 
-        # BLOCK bo'lsa, subscribe UI ko'rsatamiz va to'xtatamiz
+        from keyboards.inline.subscribe import build_subscribe_kb
+
         if mode == "BLOCK":
-            from keyboards.inline.subscribe import build_subscribe_kb
-            required = payload.get("required", [])
             await event.answer(
-                "Botdan foydalanish uchun quyidagi kanallarga obuna bo'ling va \"/check\" bosing:",
-                reply_markup=build_subscribe_kb(required)
+                "Botdan foydalanish uchun quyidagi kanallarga obuna bo‘ling va /check yuboring:",
+                reply_markup=build_subscribe_kb(payload.get("required", [])),
             )
             return
 
-        # BONUS_ONLY — ogohlantirib, davom etamiz
-        from keyboards.inline.subscribe import build_subscribe_kb
-        await event.answer("Bonus olish uchun quyidagi kanallarga obuna bo'ling va /check ni bosing.",
-                           reply_markup=build_subscribe_kb(payload.get("required", [])))
+        # BONUS_ONLY rejimi
+        await event.answer(
+            "Bonus olish uchun quyidagi kanallarga obuna bo‘ling va /check yuboring.",
+            reply_markup=build_subscribe_kb(payload.get("required", [])),
+        )
         return await handler(event, data)
