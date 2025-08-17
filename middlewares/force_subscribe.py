@@ -9,10 +9,6 @@ WHITELIST = { "help", "check"}
 
 class ForceSubscribeMiddleware(BaseMiddleware):
     async def __call__(self, handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]], event: Message, data: Dict[str, Any]):
-        text = (event.text or "").lstrip("/")
-        cmd = text.split()[0] if text.startswith(('/', '!')) else None
-        if cmd and cmd in WHITELIST:
-            return await handler(event, data)
 
         user_id = event.from_user.id
         try:
