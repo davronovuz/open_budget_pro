@@ -97,10 +97,6 @@ async def handle_withdraw(message: Message) -> None:
     await message.answer(PLACEHOLDER, reply_markup=get_user_get_money_keyboard())
 
 
-@menu_router.message(F.text == "👥 Referal")
-async def handle_referral(message: Message) -> None:
-    await send_typing(message, 0.3)
-    await message.answer(PLACEHOLDER, reply_markup=get_user_start_keyboard())
 
 
 # Child buttons (placeholders)
