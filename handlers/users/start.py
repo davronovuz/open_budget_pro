@@ -87,11 +87,10 @@ async def _grant_referral_if_needed(msg: Message) -> None:
 # ----------------- HANDLERS -----------------
 @user_router.message(CommandStart())
 async def user_start(message: Message):
-    # 1) Userni backendga yozamiz (fon rejimida)
-    asyncio.create_task(_upsert_user(message))
+    await _upsert_user(message)
 
-    # 2) Agar referal payload bo'lsa — grant yuboramiz (fon rejimida)
-    asyncio.create_task(_grant_referral_if_needed(message))
+    # 2) Referral grant — endi yuboramiz (payload bo'lsa)
+    await _grant_referral_if_needed(message)
 
     # 3) Xush kelibsiz matn + asosiy menyu
     full_name = (message.from_user.full_name or "Unknown").strip()
