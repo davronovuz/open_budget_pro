@@ -1,12 +1,14 @@
+# referral_router.py — drop-in replacement
+
 from aiogram import Router, F
-from aiogram.types import Message
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 import aiohttp
-import os
 
 referral_router = Router(name="referral")
-API_BASE = "http://167.86.71.176/api/v1/api"
-BOT_USERNAME = "openbudget_humo_bot"  # sizning bot username
 
+API_BASE = "http://167.86.71.176/api/v1/api"      # ✅ to'g'rilandi
+BOT_USERNAME = "openbudget_humo_bot"          # fixed
+DEFAULT_REWARD = 5000
 
 async def get_reward_sum() -> int:
     try:
@@ -14,15 +16,21 @@ async def get_reward_sum() -> int:
             async with s.get(f"{API_BASE}/referral/config/", timeout=8) as r:
                 if r.status == 200:
                     data = await r.json()
-                    return data.get("referral_reward_sum", 0)
+                    return int(data.get("referral_reward_sum", DEFAULT_REWARD))
     except Exception:
         pass
-    return 0
-
+    return DEFAULT_REWARD
 
 def build_ref_link(user_id: int) -> str:
+    # payload: faqat raqam (start.py shuni kutyapti)
     return f"https://t.me/{BOT_USERNAME}?start={user_id}"
 
+def referral_kb(link: str) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🔗 Havolani ulashish", switch_inline_query=link)],
+        [InlineKeyboardButton(text="➡️ Havolani ochish", url=link)],
+        [InlineKeyboardButton(text="🚫 Bekor qilish", callback_data="ref_cancel")]
+    ])
 
 @referral_router.message(F.text == "👥 Referal")
 async def referral_card(message: Message):
@@ -32,14 +40,19 @@ async def referral_card(message: Message):
     text = (
         f"🔗 <b>Sizning referal havolangiz:</b> {link}\n\n"
         f"ℹ️ Do‘stingiz shu havola orqali botga kirsa, sizga <b>{reward:,}</b> so‘m mukofot tushadi."
-        .replace(",", " ")
+    ).replace(",", " ")
+
+    await message.answer(
+        text, parse_mode="HTML",
+        disable_web_page_preview=False,
+        reply_markup=referral_kb(link)
     )
 
-    await message.answer(text, parse_mode="HTML")
-    # URL preview chiqishi uchun alohida link
-    await message.answer(link, disable_web_page_preview=False)
-
-
-@referral_router.message(F.text == "Bekor qilish 🚫")
-async def cancel(message: Message):
-    await message.answer("Asosiy menyuga qaytdingiz.")
+@referral_router.callback_query(F.data == "ref_cancel")
+async def ref_cancel(cb: CallbackQuery):
+    # faqat inline knopkalarni olib tashlaymiz (xabarning o'zi qoladi)
+    try:
+        await cb.message.edit_reply_markup(reply_markup=None)
+    except Exception:
+        pass
+    await cb.answer("Bekor qilindi")
