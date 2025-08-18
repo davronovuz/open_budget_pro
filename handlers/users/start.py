@@ -6,6 +6,9 @@ import asyncio
 import logging
 
 from keyboards.inline.main import get_user_start_inline_keyboard
+from keyboards.default.main import get_user_start_keyboard,get_user_get_money_keyboard
+
+
 
 user_router = Router()
 
@@ -55,7 +58,7 @@ Ijtimoiy loyihalarga <b>ovoz berib</b> pul ishlang,
     """
     await message.reply(
         welcome_message,
-        reply_markup=get_user_start_inline_keyboard(),
+        reply_markup=get_user_start_keyboard(),
         parse_mode="HTML",
     )
 
