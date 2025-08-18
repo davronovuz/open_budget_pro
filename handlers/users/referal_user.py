@@ -27,7 +27,6 @@ def build_ref_link(user_id: int) -> str:
 
 def referral_kb(link: str) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🔗 Havolani ulashish", switch_inline_query=link)],
         [InlineKeyboardButton(text="🚫 Bekor qilish", callback_data="ref_cancel")]
     ])
 
