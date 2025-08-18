@@ -42,7 +42,7 @@ async def referral_card(message: Message):
 
     await message.answer(
         text, parse_mode="HTML",
-        disable_web_page_preview=False,
+        disable_web_page_preview=True,
         reply_markup=referral_kb(link)
     )
 
