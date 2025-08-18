@@ -15,7 +15,7 @@ user_router = Router()
 # ====== BACKEND API ======
 API_BASE = "http://167.86.71.176/api/v1"          # sizning backend bazangiz
 API_USERS = f"{API_BASE}/users/"                   # user upsert endpoint (DRF plural)
-API_REF_GRANT = f"{API_BASE}/referral/grant/"      # ✅ referal grant endpoint (MUHIM)
+API_REF_GRANT = f"/api/{API_BASE}/referral/grant/"      # ✅ referal grant endpoint (MUHIM)
 
 logger = logging.getLogger("bot.start")
 
