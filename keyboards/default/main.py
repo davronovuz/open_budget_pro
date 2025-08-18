@@ -16,7 +16,6 @@ def get_user_start_keyboard() -> ReplyKeyboardMarkup:
             ],
             [
                 KeyboardButton(text="👥 Referal"),
-                KeyboardButton(text="📢 To'lovlar kanali"),
             ],
         ],
         resize_keyboard=True,
