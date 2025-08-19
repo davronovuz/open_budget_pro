@@ -58,7 +58,7 @@ def main_menu_keyboard():
 
 
 # ====== ENTRY POINT ======
-@withdraw_router.message(F.text.in_(["💳 Paynet", "💳 UzCard / Humo"]))
+@withdraw_router.message(F.text.in_(["💳 Paynet", "💵 UzCard / Humo"]))
 async def withdraw_start(message: Message, state: FSMContext):
     user_id = message.from_user.id
     method = "PAYNET" if "Paynet" in message.text else "CARD"

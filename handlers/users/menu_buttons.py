@@ -92,7 +92,7 @@ async def handle_vote(message: Message) -> None:
 
 @menu_router.message(F.text == "💸 Pul yechib olish")
 async def handle_withdraw(message: Message) -> None:
-    await message.answer(PLACEHOLDER, reply_markup=get_user_get_money_keyboard())
+    await message.answer("Tanlang ...", reply_markup=get_user_get_money_keyboard())
 
 
 
