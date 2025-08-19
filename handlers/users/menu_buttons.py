@@ -92,18 +92,12 @@ async def handle_vote(message: Message) -> None:
 
 @menu_router.message(F.text == "💸 Pul yechib olish")
 async def handle_withdraw(message: Message) -> None:
-    await send_typing(message, 0.3)
-    # Show child keyboard now, still placeholder flow
     await message.answer(PLACEHOLDER, reply_markup=get_user_get_money_keyboard())
 
 
 
 
-# Child buttons (placeholders)
-@menu_router.message(F.text.in_(["💳 Paynet", "💵 UzCard / Humo"]))
-async def handle_payout_methods(message: Message) -> None:
-    await send_typing(message, 0.2)
-    await message.answer(PLACEHOLDER)
+
 
 
 @menu_router.message(F.text == "❌ Bekor qilish")
