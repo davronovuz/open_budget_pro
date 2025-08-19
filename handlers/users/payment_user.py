@@ -11,7 +11,7 @@ API_BASE = "http://167.86.71.176/api/v1"
 API_BALANCE = f"{API_BASE}/api/balance"
 API_WITHDRAW = f"{API_BASE}/withdrawals/create_request/"
 
-# Minimal withdraw (server bilan sinxron qilishingiz mumkin)
+# Minimal withdraw
 MIN_WITHDRAW = 5000
 
 
@@ -35,9 +35,9 @@ async def get_balance(user_id: int) -> int:
 
 
 async def create_withdrawal(user_id: int, method: str, dest: str, amount: int):
-    """Backendga withdrawal so‘rovi yuborish (telegram_id bilan)"""
+    """Backendga withdrawal so‘rovi yuborish"""
     payload = {
-        "user_id": user_id,          # ✅ telegram_id
+        "user_id": user_id,      # ✅ backend shunday talab qiladi
         "method": method,
         "destination": dest,
         "amount": amount,
