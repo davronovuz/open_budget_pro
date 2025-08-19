@@ -1,5 +1,5 @@
 from aiogram import Router, F
-from aiogram.types import Message
+from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 import aiohttp
@@ -9,7 +9,7 @@ withdraw_router = Router(name="withdraw")
 # ====== API endpoints ======
 API_BASE = "http://167.86.71.176/api/v1"
 API_BALANCE = f"{API_BASE}/api/balance"
-API_WITHDRAW = f"{API_BASE}/api/withdrawals/create_request/"
+API_WITHDRAW = f"{API_BASE}/withdrawals/create_request/"
 
 # Minimal withdraw (server bilan sinxron qilishingiz mumkin)
 MIN_WITHDRAW = 5000
@@ -47,6 +47,16 @@ async def create_withdrawal(user_id: int, method: str, dest: str, amount: int):
             return resp.status, await resp.json()
 
 
+# ====== Orqaga tugma ======
+def main_menu_keyboard():
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="⬅️ Asosiy menyu")]
+        ],
+        resize_keyboard=True
+    )
+
+
 # ====== ENTRY POINT ======
 @withdraw_router.message(F.text.in_(["💳 Paynet", "💳 UzCard / Humo"]))
 async def withdraw_start(message: Message, state: FSMContext):
@@ -57,9 +67,10 @@ async def withdraw_start(message: Message, state: FSMContext):
 
     if balance < MIN_WITHDRAW:
         await message.answer(
-            f"❌ Sizning balansingiz: {balance} so‘m\n"
-            f"Minimal yechish: {MIN_WITHDRAW} so‘m\n"
-            "Balansingiz yetarli emas."
+            f"❌ Sizning balansingiz: {balance:,} so‘m\n"
+            f"Minimal yechish: {MIN_WITHDRAW:,} so‘m\n"
+            "Balansingiz yetarli emas.",
+            reply_markup=main_menu_keyboard()
         )
         await state.clear()
         return
@@ -121,15 +132,19 @@ async def withdraw_destination(message: Message, state: FSMContext):
 
     if status in (200, 201):
         await message.answer(
-            f"✅ So‘rov qabul qilindi!\n\n"
-            f"Usul: {method}\n"
-            f"Summa: {amount:,} so‘m\n"
-            f"Hisob: {destination}\n"
-            f"Status: {resp.get('status', 'PENDING')}"
+            "✅ <b>Pul yechish so‘rovingiz qabul qilindi!</b>\n\n"
+            f"💳 Usul: <b>{method}</b>\n"
+            f"💵 Summa: <b>{amount:,} so‘m</b>\n"
+            f"📱 Hisob raqam: <code>{destination}</code>\n"
+            f"📊 Holat: <b>{resp.get('status', 'PENDING')}</b>\n\n"
+            "📌 So‘rovingiz admin tomonidan tekshirilgach, mablag‘ingiz tez orada o‘tkaziladi.\n"
+            "ℹ️ Jarayon tugagach, sizga alohida xabar yuboriladi.",
+            parse_mode="HTML",
+            reply_markup=main_menu_keyboard()
         )
     else:
         detail = resp.get("detail") if isinstance(resp, dict) else resp
-        await message.answer(f"❌ Xatolik: {detail}")
+        await message.answer(f"❌ Xatolik: {detail}", reply_markup=main_menu_keyboard())
 
     await state.clear()
 
@@ -138,4 +153,4 @@ async def withdraw_destination(message: Message, state: FSMContext):
 @withdraw_router.message(F.text.in_(["❌ Bekor qilish", "/cancel"]))
 async def withdraw_cancel(message: Message, state: FSMContext):
     await state.clear()
-    await message.answer("❌ Bekor qilindi.")
+    await message.answer("❌ Bekor qilindi.", reply_markup=main_menu_keyboard())
