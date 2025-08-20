@@ -95,14 +95,24 @@ async def user_start(message: Message):
     # 3) Xush kelibsiz matn + asosiy menyu
     full_name = (message.from_user.full_name or "Unknown").strip()
     welcome_message = f"""
-<b>👋 Salom {full_name}!</b>
-Ijtimoiy loyihalarga <b>ovoz berib</b> pul ishlang,
-👥 Do‘stlaringizni botga taklif qilib <b>referal bonuslar</b> oling,
-💳 To‘plangan balansingizni <b>real pul</b> sifatida yechib oling.
+    <b>👋 Salom {full_name}!</b>
 
-⚠️ Har bir telefon raqam faqat <b>bitta marta</b> ovoz bera oladi.
-👇 Quyidagi tugmalardan birini tanlab, davom eting:
+    📌 Bu bot orqali siz:
+    ▫️ <b>Ijtimoiy loyihalarga ovoz berib</b> pul ishlashingiz mumkin,
+    ▫️ 👥 Do‘stlaringizni taklif qilsangiz — <b>referal bonuslar</b> olasiz,
+    ▫️ 💳 Balansingizni <b>real pul</b> sifatida yechib olishingiz mumkin.
+
+    ⚠️ Diqqat: Har bir telefon raqam faqat <b>1 marta</b> ovoz bera oladi.
+
+    ─────────────────────
+    📢 Bot Yangiliklari: @openbudgethumonews  
+    💵 To‘lovlar kanali: @openbudgethumotolovlar  
+    👨‍💻 Admin bilan aloqa: @Fattoyev_A  
+    ─────────────────────
+
+    👇 Quyidagi tugmalardan birini tanlab davom eting:
     """
+
     await message.reply(
         welcome_message,
         reply_markup=get_user_start_keyboard(),
