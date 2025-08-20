@@ -1,6 +1,10 @@
 import asyncio
 import aiohttp
 from aiogram import Bot
+from zoneinfo import ZoneInfo
+from datetime import datetime
+
+
 
 last_id = 0  # oxirgi ko‘rilgan withdrawal id
 
@@ -26,6 +30,9 @@ async def poll_withdraw_updates(bot: Bot, withdraw_updates_url: str, notify_chan
                             dest = w["destination"]
                             user_id = w["user_id"]
                             updated_at = w["updated_at"]
+                            ts = datetime.fromisoformat(w["updated_at"])
+                            ts_tashkent = ts.astimezone(ZoneInfo("Asia/Tashkent"))
+                            sana = ts_tashkent.strftime("%d-%m-%Y %H:%M")
 
                             # ---- USERGA XABAR ----
                             if status == "PAID":
@@ -34,7 +41,7 @@ async def poll_withdraw_updates(bot: Bot, withdraw_updates_url: str, notify_chan
                                     f"💵 Summa: <b>{amount:,} so‘m</b>\n"
                                     f"💳 Usul: {method}\n"
                                     f"📍 Hisob: <code>{dest}</code>\n"
-                                    f"🕒 Sana: {updated_at}\n\n"
+                                    f"🕒 Sana: {sana}\n\n"
                                     "✔️ Mablag‘ingiz hisobingizga o‘tkazildi."
                                 )
                             else:  # REJECTED
@@ -44,7 +51,7 @@ async def poll_withdraw_updates(bot: Bot, withdraw_updates_url: str, notify_chan
                                     f"💵 Summa: <b>{amount:,} so‘m</b>\n"
                                     f"💳 Usul: {method}\n"
                                     f"📍 Hisob: <code>{dest}</code>\n"
-                                    f"🕒 Sana: {updated_at}\n\n"
+                                    f"🕒 Sana: {sana}\n\n"
                                     f"📌 Sabab: <i>{reason}</i>"
                                 )
 
@@ -60,7 +67,7 @@ async def poll_withdraw_updates(bot: Bot, withdraw_updates_url: str, notify_chan
                                     f"💵 Summa: <b>{amount:,} so‘m</b>\n"
                                     f"💳 Usul: {method}\n"
                                     f"📍 Hisob: <code>{dest}</code>\n"
-                                    f"🕒 Sana: {updated_at}\n\n"
+                                    f"🕒 Sana: {sana}\n\n"
                                     "🔔 Bizning xizmatimiz orqali foydalanuvchilarga to‘lovlar amalga oshirilmoqda!"
                                 )
                                 try:
