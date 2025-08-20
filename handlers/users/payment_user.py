@@ -103,7 +103,7 @@ async def withdraw_start(message: Message, state: FSMContext):
     await message.answer(
         f"✅ Balansingiz: {balance:,} so‘m\n"
         f"Minimal yechish: {MIN_WITHDRAW:,} so‘m\n\n"
-        "💵 Qancha summa yechmoqchisiz?"
+        "💵 Qancha summa yechmoqchisiz yozing? \n(sonlarda kiriting, masalan: 20000)\n"
     )
     await state.set_state(WithdrawState.amount)
 
@@ -165,7 +165,7 @@ async def withdraw_destination(message: Message, state: FSMContext):
             f"💵 Summa: <b>{amount:,} so‘m</b>\n"
             f"📱 Hisob raqam: <code>{destination}</code>\n"
             f"📊 Holat: <b>{resp.get('status', 'PENDING')}</b>\n\n"
-            "📌 So‘rovingiz admin tomonidan tekshirilgach, mablag‘ingiz tez orada o‘tkaziladi.\n"
+            "📌  So‘rovingiz admin tomonidan tekshirilgach, mablag‘ingiz tez orada o‘tkaziladi.\n"
             "ℹ️ Jarayon tugagach, sizga alohida xabar yuboriladi.",
             parse_mode="HTML",
             reply_markup=main_menu_keyboard()

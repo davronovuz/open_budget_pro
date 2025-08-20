@@ -11,6 +11,7 @@ from config import load_config, Config
 from handlers.users import routers_list
 from middlewares.config import ConfigMiddleware
 from middlewares.force_subscribe import ForceSubscribeMiddleware
+from handlers.users.withdraw_updates  import poll_withdraw_updates
 
 from services import broadcaster
 
@@ -88,6 +89,14 @@ async def main():
     dp = Dispatcher(storage=storage)
     register_global_middlewares(dp, config)
     dp.include_routers(*routers_list)
+
+    asyncio.create_task(
+        poll_withdraw_updates(
+            bot,
+            "http://167.86.71.176/api/v1/api/withdrawals/updates/",
+            -1002957876568   # kanal ID
+        )
+    )
 
 
 
