@@ -97,19 +97,13 @@ async def user_start(message: Message):
     welcome_message = f"""
     <b>👋 Salom {full_name}!</b>
 
-    📌 Bu bot orqali siz:
-    ▫️ <b>Ijtimoiy loyihalarga ovoz berib</b> pul ishlashingiz mumkin,
-    ▫️ 👥 Do‘stlaringizni taklif qilsangiz — <b>referal bonuslar</b> olasiz,
-    ▫️ 💳 Balansingizni <b>real pul</b> sifatida yechib olishingiz mumkin.
-
-    ⚠️ Diqqat: Har bir telefon raqam faqat <b>1 marta</b> ovoz bera oladi.
-
+    ▫️ <b>Ijtimoiy loyihalarga ovoz berib</b> pul ishlang.
+    ▫️ 👥 Do‘stlaringizni taklif qiling — <b>qo'shimcha bonuslar</b> olasiz,
     ─────────────────────
     📢 Bot Yangiliklari: @openbudgethumonews  
     💵 To‘lovlar kanali: @openbudgethumotolovlar  
     👨‍💻 Admin bilan aloqa: @Fattoyev_A  
     ─────────────────────
-
     👇 Quyidagi tugmalardan birini tanlab davom eting:
     """
 
