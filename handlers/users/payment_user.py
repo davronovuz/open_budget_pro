@@ -3,6 +3,9 @@ from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 import aiohttp
+import re
+
+from keyboards.default.main import get_user_start_keyboard
 
 withdraw_router = Router(name="withdraw")
 
@@ -10,6 +13,7 @@ withdraw_router = Router(name="withdraw")
 API_BASE = "http://167.86.71.176/api/v1"
 API_BALANCE = f"{API_BASE}/api/balance"
 API_WITHDRAW = f"{API_BASE}/withdrawals/create_request/"
+API_HAS_OPEN = f"{API_BASE}/withdrawals/has_open_request/"
 
 # Minimal withdraw
 MIN_WITHDRAW = 5000
@@ -24,7 +28,7 @@ class WithdrawState(StatesGroup):
 
 # ====== Helpers ======
 async def get_balance(user_id: int) -> int:
-    """Backenddan balansni olib kelish (telegram_id bo‘yicha)"""
+    """Backenddan balansni olib kelish"""
     url = f"{API_BALANCE}/{user_id}/"
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as resp:
@@ -34,10 +38,21 @@ async def get_balance(user_id: int) -> int:
             return 0
 
 
+async def has_open_request(user_id: int) -> bool:
+    """Backenddan foydalanuvchida tugallanmagan so‘rov bor-yo‘qligini tekshirish"""
+    url = f"{API_HAS_OPEN}?user_id={user_id}"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as resp:
+            if resp.status == 200:
+                data = await resp.json()
+                return data.get("has_open", False)
+            return False
+
+
 async def create_withdrawal(user_id: int, method: str, dest: str, amount: int):
     """Backendga withdrawal so‘rovi yuborish"""
     payload = {
-        "user_id": user_id,      # ✅ backend shunday talab qiladi
+        "user_id": user_id,
         "method": method,
         "destination": dest,
         "amount": amount,
@@ -50,9 +65,7 @@ async def create_withdrawal(user_id: int, method: str, dest: str, amount: int):
 # ====== Orqaga tugma ======
 def main_menu_keyboard():
     return ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="⬅️ Asosiy menyu")]
-        ],
+        keyboard=[[KeyboardButton(text="⬅️ Asosiy menyu")]],
         resize_keyboard=True
     )
 
@@ -63,8 +76,18 @@ async def withdraw_start(message: Message, state: FSMContext):
     user_id = message.from_user.id
     method = "PAYNET" if "Paynet" in message.text else "CARD"
 
-    balance = await get_balance(user_id)
+    # 1) Oldingi tugallanmagan so‘rov bormi?
+    if await has_open_request(user_id):
+        await message.answer(
+            "❌ Sizda hali tugallanmagan pul yechish so‘rovi bor.\n"
+            "Iltimos, admin uni tasdiqlamaguncha yoki rad etmaguncha kuting.",
+            reply_markup=main_menu_keyboard()
+        )
+        await state.clear()
+        return
 
+    # 2) Balansni tekshirish
+    balance = await get_balance(user_id)
     if balance < MIN_WITHDRAW:
         await message.answer(
             f"❌ Sizning balansingiz: {balance:,} so‘m\n"
@@ -121,14 +144,19 @@ async def withdraw_destination(message: Message, state: FSMContext):
     user_id = data["user_id"]
     destination = message.text.strip()
 
+    # === Validatsiya ===
+    if method == "PAYNET":
+        if not re.fullmatch(r"^\+998\d{9}$", destination):
+            await message.answer("❌ Telefon raqamini to‘g‘ri formatda kiriting.\nMasalan: +998901234567")
+            return
+    else:  # CARD
+        if not re.fullmatch(r"^\d{16}$", destination):
+            await message.answer("❌ Karta raqami 16 ta raqam bo‘lishi kerak.\nMasalan: 8600123412341234")
+            return
+
     await message.answer("⏳ So‘rovingiz yuborilmoqda...")
 
-    status, resp = await create_withdrawal(
-        user_id=user_id,
-        method=method,
-        dest=destination,
-        amount=amount,
-    )
+    status, resp = await create_withdrawal(user_id, method, destination, amount)
 
     if status in (200, 201):
         await message.answer(
@@ -154,3 +182,14 @@ async def withdraw_destination(message: Message, state: FSMContext):
 async def withdraw_cancel(message: Message, state: FSMContext):
     await state.clear()
     await message.answer("❌ Bekor qilindi.", reply_markup=main_menu_keyboard())
+
+
+@withdraw_router.message(F.text == "⬅️ Asosiy menyu")
+async def back_to_main_menu(message: Message):
+    """
+    Foydalanuvchi '⬅️ Asosiy menyu' tugmasini bossagina ishlaydi.
+    """
+    await message.answer(
+        "🏠 Asosiy menyuga qaytdingiz!",
+        reply_markup=get_user_start_keyboard()
+    )
