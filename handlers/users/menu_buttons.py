@@ -12,6 +12,8 @@ import aiohttp
 from aiogram import Router, F
 from aiogram.types import Message
 from aiogram.enums import ChatAction
+
+from handlers.users.payment_user import API_HAS_OPEN, main_menu_keyboard
 from keyboards.default.main import get_user_start_keyboard, get_user_get_money_keyboard
 
 
@@ -21,6 +23,15 @@ API_BASE = "http://167.86.71.176/api/v1/api"
 BALANCE_ENDPOINT = f"{API_BASE}/balance"
 
 
+async def has_open_request(user_id: int) -> bool:
+    """Backenddan foydalanuvchida tugallanmagan so‘rov bor-yo‘qligini tekshirish"""
+    url = f"{API_HAS_OPEN}?user_id={user_id}"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as resp:
+            if resp.status == 200:
+                data = await resp.json()
+                return data.get("has_open", False)
+            return False
 
 
 menu_router = Router(name="menu_buttons")
@@ -92,6 +103,14 @@ async def handle_vote(message: Message) -> None:
 
 @menu_router.message(F.text == "💸 Pul yechib olish")
 async def handle_withdraw(message: Message) -> None:
+    user_id = message.from_user.id
+    if await has_open_request(user_id):
+        await message.answer(
+            "❌ Sizda hali tugallanmagan pul yechish so‘rovi bor.\n"
+            "Iltimos, admin uni tasdiqlamaguncha yoki rad etmaguncha kuting.",
+            reply_markup=main_menu_keyboard()
+        )
+        return
     await message.answer("Tanlang ...", reply_markup=get_user_get_money_keyboard())
 
 
