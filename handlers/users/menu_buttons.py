@@ -110,8 +110,8 @@ async def handle_withdraw(message: Message) -> None:
             "Iltimos, admin uni tasdiqlamaguncha yoki rad etmaguncha kuting.",
             reply_markup=main_menu_keyboard()
         )
-        return
-    await message.answer("Tanlang ...", reply_markup=get_user_get_money_keyboard())
+    else:
+        await message.answer("Tanlang ...", reply_markup=get_user_get_money_keyboard())
 
 
 
