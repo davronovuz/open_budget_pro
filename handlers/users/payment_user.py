@@ -16,7 +16,7 @@ API_WITHDRAW = f"{API_BASE}/withdrawals/create_request/"
 API_HAS_OPEN = f"{API_BASE}/withdrawals/has_open_request/"
 
 # Minimal withdraw
-MIN_WITHDRAW = 5000
+MIN_WITHDRAW = 25000
 
 
 # ====== FSM states ======
